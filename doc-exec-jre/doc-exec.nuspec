@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated with JReleaser 1.21.0 at 2025-11-04T11:44:39.294479453Z -->
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <!-- required -->
+    <id>doc-exec</id>
+    <version>1.0.0</version>
+    <authors>Combostrap Team</authors>
+    <description>Doc Exec, execution of code inside documentation
+</description>
+    <!-- optional -->
+    <title>Doc Execution</title>
+    <projectUrl>https://github.com/ComboStrap/doc-exec</projectUrl>
+    <copyright>2025 Combostrap.com</copyright>
+    <licenseUrl>https://spdx.org/licenses/FSL-1.1-MIT.html</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <tags>documentation execution markdown wiki</tags>
+    <summary>ComboStrap Doc Exec</summary>
+    <projectSourceUrl>https://github.com/combostrap/doc-exec</projectSourceUrl>
+    <packageSourceUrl>https://github.com/combostrap/chocolatey-bucket</packageSourceUrl>
+    <docsUrl>https://github.com/ComboStrap/doc-exec</docsUrl>
+    <bugTrackerUrl>https://github.com/ComboStrap/doc-exec/issues</bugTrackerUrl>
+    <releaseNotes>https://github.com/combostrap/doc-exec/releases/tag/v1.0.0</releaseNotes>
+    <iconUrl>https://rawcdn.githack.com/ComboStrap/site-com-combostrap/fcae9343885f4b6e4e8f977a05cb7353e84c3c8c/data/media/android-chrome-192x192.png</iconUrl>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
