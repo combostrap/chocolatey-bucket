@@ -1,0 +1,108 @@
+# Based on
+# https://community.chocolatey.org/courses/creating-chocolatey-packages/building-testing-and-pushing
+name: Publish
+
+on:
+  # Trigger on tag push
+  push:
+    tags:
+      - '*-v*'
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    steps:
+
+      # Check the repository out
+      - uses: actions/checkout@v4
+
+      # Determine the env
+      - name: Props (Product, version and paths)
+        id: props
+        shell: pwsh
+        run: |
+          $RefName='${{ github.ref_name }}'
+          if ($RefName -match '^(.+)-v(.+)$'){
+
+            # Matched group
+            $packageName = $matches[1]
+            $packageVersion = $matches[2]
+
+            # Set Product Name
+            Write-Host "package_name: $packageName"
+            Add-Content -Path $env:GITHUB_OUTPUT -Value "package_name=$packageName"
+
+            # Set Product Version
+            Write-Host "package_version: $packageVersion"
+            Add-Content -Path $env:GITHUB_OUTPUT -Value "package_version=$packageVersion"
+
+            # Package Path
+            $packageFile = Get-ChildItem -Path . -Filter "$packageName.nuspec" -Recurse -ErrorAction SilentlyContinue
+            $packageRelativePath = Resolve-Path -Path $packageFile.FullName -Relative
+            Add-Content -Path $env:GITHUB_OUTPUT -Value "package_path=$packageRelativePath"
+            Write-Host "package_path: $packageRelativePath"
+
+          } else {
+            Write-Error "Ref Name '$RefName' does not match expected pattern '*-v*'"
+            exit 1
+          }
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '5.0.x'
+
+      # Pack (https://docs.chocolatey.org/en-us/create/commands/pack/)
+      - name: Pack
+        shell: powershell
+        run: |
+          # choco pack path/to/nuspec
+          choco pack ${{ steps.props.outputs.package_path }}
+
+      - name: Display structure of files
+        run: ls -R
+
+      # Test (https://community.chocolatey.org/courses/creating-chocolatey-packages/building-testing-and-pushing#testing)
+      - name: Installation Test
+        shell: powershell
+        run: |
+          
+          # Error handling (is fucked)
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = "Stop"
+          $PSNativeCommandUseErrorActionPreference = $true
+          $PSDefaultParameterValues['*:ErrorAction'] = 'Stop'
+          function ExitOnFailure { if (-not $?) { exit $LASTEXITCODE } }
+          
+          choco install ${{ steps.props.outputs.package_name }} --debug --verbose --source .
+          ExitOnFailure
+          
+          # Verify command with the version option
+          $output = & ${{ steps.props.outputs.package_name }} --version 2>&1 | Out-String
+          ExitOnFailure
+          if ($output -notlike "*${{ steps.props.outputs.package_version }}*") {
+             Write-Host "Version ${{ steps.props.outputs.package_version }} not found in output" -ForegroundColor Red
+             Write-Host "Output:\r\n$output"
+             exit 1
+          }
+          
+          # Uninstall test
+          # https://docs.chocolatey.org/en-us/choco/commands/uninstall/
+          choco uninstall ${{ steps.props.outputs.package_name }} --debug --verbose --confirm --accept-license
+          ExitOnFailure
+
+      - name: Publish
+        shell: powershell
+        run: |
+          
+          # Error handling (is fucked)
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = "Stop"
+          $PSNativeCommandUseErrorActionPreference = $true
+          $PSDefaultParameterValues['*:ErrorAction'] = 'Stop'
+          function ExitOnFailure { if (-not $?) { exit $LASTEXITCODE } }
+          
+          choco apikey -k ${{ secrets.CHOCOLATEY_API_KEY }} -s https://push.chocolatey.org/
+          ExitOnFailure
+          
+          choco push ${{ steps.props.outputs.package_name }}.${{ steps.props.outputs.package_version }}.nupkg -s https://push.chocolatey.org/
+          ExitOnFailure
