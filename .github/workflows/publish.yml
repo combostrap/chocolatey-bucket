@@ -106,3 +106,7 @@ jobs:
           
           choco push ${{ steps.props.outputs.package_name }}.${{ steps.props.outputs.package_version }}.nupkg -s https://push.chocolatey.org/
           ExitOnFailure
+          
+          Write-Host "You can check the status at: https://community.chocolatey.org/account/Packages"
+          Write-Host "https://community.chocolatey.org/packages/${{ steps.props.outputs.package_name }}/${{ steps.props.outputs.package_version }}"
+          Write-Host "The package (the *.nupkg file) will be available within 30 minute on the CDN network" 
