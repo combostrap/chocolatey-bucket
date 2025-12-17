@@ -1,5 +1,6 @@
-name: Trigger-doc-exec-jre
-
+name: Deprecated Trigger-doc-exec-jre
+# Bug: JReleaser create this file if it does not exist
+# The workflow is called publish.yml
 on:
   workflow_dispatch:
 

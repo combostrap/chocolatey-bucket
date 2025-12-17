@@ -1,11 +1,9 @@
-name: Push-doc-exec-jre
+name: Deprecated Push-doc-exec-jre
 
+# Bug: JReleaser create this file if it does not exist
+# The workflow is called publish.yml
 on:
-  push:
-    tags:
-      - '*'
-    branches-ignore:
-      - '**'
+  workflow_dispatch:
 
 jobs:
   push:
